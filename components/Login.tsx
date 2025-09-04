@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { redirect } from "next/navigation";
 
 export function Login() {
   const [formData, setFormData] = useState({
@@ -45,6 +46,7 @@ export function Login() {
 
     if (!newErrors.emailOrPhone && !newErrors.password) {
       console.log("Login attempt:", formData);
+      redirect("/dashboard");
       // Add your login logic here
     }
   };
