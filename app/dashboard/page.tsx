@@ -26,6 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import {
   PlusCircle,
   Users,
@@ -55,7 +56,11 @@ export default function Dashboard() {
 
   const [search, setSearch] = useState("");
   const [month, setMonth] = useState(currentMonth);
+
   const [sortAsc, setSortAsc] = useState(true);
+  const [sortKey, setSortKey] = useState("name");
+
+  const [isAddOpen, setIsAddOpen] = useState(false);
 
   const [members, setMembers] = useState([
     {
@@ -64,17 +69,35 @@ export default function Dashboard() {
       phone: "9876543210",
       fee: 1000,
       gender: "male",
-      photo: "",
+      photo: "https://randomuser.me/api/portraits/men/32.jpg",
       paidMonths: ["September"],
     },
     {
-      id: 2,
-      name: "Jane Smith",
-      phone: "8765432109",
-      fee: 1200,
+      id: 3,
+      name: "Alice Johnson",
+      phone: "7654321098",
+      fee: 1500,
       gender: "female",
-      photo: "",
+      photo: "https://randomuser.me/api/portraits/women/68.jpg",
+      paidMonths: ["September", "October"],
+    },
+    {
+      id: 4,
+      name: "Bob Brown",
+      phone: "6543210987",
+      fee: 900,
+      gender: "male",
+      photo: "https://randomuser.me/api/portraits/men/75.jpg",
       paidMonths: [],
+    },
+    {
+      id: 5,
+      name: "Charlie Davis",
+      phone: "5432109876",
+      fee: 1100,
+      gender: "male",
+      photo: "https://randomuser.me/api/portraits/men/15.jpg",
+      paidMonths: ["October"],
     },
   ]);
 
@@ -87,9 +110,29 @@ export default function Dashboard() {
         m.name.toLowerCase().includes(search.toLowerCase()) ||
         m.phone.includes(search)
     )
-    .sort((a, b) =>
-      sortAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
-    );
+    .sort((a, b) => {
+      let valA, valB;
+
+      if (sortKey === "name") {
+        valA = a.name.toLowerCase();
+        valB = b.name.toLowerCase();
+      } else if (sortKey === "fee") {
+        valA = a.fee;
+        valB = b.fee;
+      } else if (sortKey === "gender") {
+        valA = a.gender;
+        valB = b.gender;
+      } else if (sortKey === "status") {
+        const paidA = a.paidMonths.includes(month) ? 1 : 0;
+        const paidB = b.paidMonths.includes(month) ? 1 : 0;
+        valA = paidA;
+        valB = paidB;
+      }
+
+      if (valA < valB) return sortAsc ? -1 : 1;
+      if (valA > valB) return sortAsc ? 1 : -1;
+      return 0;
+    });
 
   // Dashboard calculations
   const totalMembers = members.length;
@@ -117,6 +160,7 @@ export default function Dashboard() {
       paidMonths: [],
     };
     setMembers((prev) => [...prev, newMember]);
+    setIsAddOpen(false); // close popup after saving
     e.currentTarget.reset();
   };
 
@@ -124,40 +168,42 @@ export default function Dashboard() {
     <div className="p-6 space-y-6">
       {/* Top Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="bg-blue-50">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Total Members</CardTitle>
-            <Users className="h-5 w-5 text-muted-foreground" />
+            <Users className="h-5 w-5 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{totalMembers}</p>
+            <p className="text-2xl font-bold text-blue-700">{totalMembers}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-green-50">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Active Members</CardTitle>
-            <UserCheck className="h-5 w-5 text-muted-foreground" />
+            <UserCheck className="h-5 w-5 text-green-500" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{activeMembers}</p>
+            <p className="text-2xl font-bold text-green-700">{activeMembers}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-red-50">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Fees Pending ({month})</CardTitle>
-            <Wallet className="h-5 w-5 text-muted-foreground" />
+            <Wallet className="h-5 w-5 text-red-500" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{feesPending}</p>
+            <p className="text-2xl font-bold text-red-700">{feesPending}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-purple-50">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Fees Collected ({month})</CardTitle>
-            <Calendar className="h-5 w-5 text-muted-foreground" />
+            <Calendar className="h-5 w-5 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">₹{feesCollected}</p>
+            <p className="text-2xl font-bold text-purple-700">
+              ₹{feesCollected}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -185,16 +231,29 @@ export default function Dashboard() {
             </SelectContent>
           </Select>
 
+          <Select value={sortKey} onValueChange={(val) => setSortKey(val)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="name">Name</SelectItem>
+              <SelectItem value="fee">Fee Amount</SelectItem>
+              <SelectItem value="gender">Gender</SelectItem>
+              <SelectItem value="status">Status</SelectItem>
+            </SelectContent>
+          </Select>
+
           <Button
             variant="outline"
             onClick={() => setSortAsc(!sortAsc)}
             className="flex items-center gap-2"
           >
-            <ArrowUpDown className="h-4 w-4" /> Sort
+            <ArrowUpDown className="h-4 w-4" />
+            {sortAsc ? "Asc" : "Desc"}
           </Button>
 
           {/* Add Member Dialog */}
-          <Dialog>
+          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
               <Button className="flex items-center gap-2">
                 <PlusCircle className="h-4 w-4" /> Add Member
@@ -241,11 +300,11 @@ export default function Dashboard() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Status ({month})</TableHead>
-                <TableHead>Photo</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="w-[80px]">Photo</TableHead>
+                <TableHead className="w-[200px]">Name</TableHead>
+                <TableHead className="w-[150px]">Phone</TableHead>
+                <TableHead className="w-[120px]">Status ({month})</TableHead>
+                <TableHead className="w-[200px] text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -253,10 +312,7 @@ export default function Dashboard() {
                 const hasPaid = m.paidMonths.includes(month);
                 return (
                   <TableRow key={m.id}>
-                    <TableCell>{m.name}</TableCell>
-                    <TableCell>{m.phone}</TableCell>
-                    <TableCell>{hasPaid ? "Paid" : "Pending"}</TableCell>
-                    <TableCell>
+                    <TableCell className="w-[80px]">
                       {m.photo ? (
                         <img
                           src={m.photo}
@@ -267,7 +323,20 @@ export default function Dashboard() {
                         <span className="text-muted-foreground">No Photo</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-right flex gap-2 justify-end">
+                    <TableCell className="w-[200px]">{m.name}</TableCell>
+                    <TableCell className="w-[150px]">{m.phone}</TableCell>
+                    <TableCell className="w-[120px]">
+                      {hasPaid ? (
+                        <Badge className="bg-green-100 text-green-700">
+                          Paid
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-red-100 text-red-700">
+                          Pending
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="w-full text-right flex gap-2 justify-end ">
                       <Button
                         variant={hasPaid ? "secondary" : "default"}
                         size="sm"

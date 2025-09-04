@@ -59,7 +59,7 @@ export function Login() {
   };
 
   return (
-    <Card className="w-full max-w-sm border-0 shadow-lg">
+    <Card className="w-full max-w-sm border-0 shadow-lg mb-10">
       <CardHeader className="text-center pb-6">
         <CardTitle className="text-2xl font-medium">Login</CardTitle>
       </CardHeader>
