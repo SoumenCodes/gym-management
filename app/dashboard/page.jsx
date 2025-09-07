@@ -73,6 +73,8 @@ export default function Dashboard() {
       photo: "https://randomuser.me/api/portraits/men/32.jpg",
       paidMonths: ["September"],
       status: "active",
+      address: "123 Main St, City",
+      aadharCard: "aadhar_john.pdf",
     },
     {
       id: 3,
@@ -83,6 +85,8 @@ export default function Dashboard() {
       photo: "https://randomuser.me/api/portraits/women/68.jpg",
       paidMonths: ["September", "October"],
       status: "active",
+      address: "456 Oak Ave, Town",
+      aadharCard: "aadhar_alice.pdf",
     },
     {
       id: 4,
@@ -93,6 +97,8 @@ export default function Dashboard() {
       photo: "https://randomuser.me/api/portraits/men/75.jpg",
       paidMonths: [],
       status: "active",
+      address: "789 Pine Rd, Village",
+      aadharCard: "aadhar_bob.pdf",
     },
     {
       id: 5,
@@ -103,6 +109,8 @@ export default function Dashboard() {
       photo: "https://randomuser.me/api/portraits/men/15.jpg",
       paidMonths: ["October"],
       status: "active",
+      address: "321 Elm St, District",
+      aadharCard: "aadhar_charlie.pdf",
     },
   ]);
 
@@ -158,21 +166,52 @@ export default function Dashboard() {
   const handleAddMember = (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+
+    const name = formData.get("name")?.toString().trim();
+    const phone = formData.get("phone")?.toString().trim();
+    const address = formData.get("address")?.toString().trim();
+    const fee = formData.get("fee");
+    const photoFile = formData.get("photo");
+    const aadharFile = formData.get("aadhar");
+
+    // Basic validation
+    if (!name || !phone || !fee) {
+      alert("Please fill in all required fields (Name, Phone, Fee)");
+      return;
+    }
+
+    // Phone validation
+    if (!/^\d{10}$/.test(phone)) {
+      alert("Please enter a valid 10-digit phone number");
+      return;
+    }
+
+    // Check for duplicate phone numbers
+    const existingMember = members.find((m) => m.phone === phone);
+    if (existingMember) {
+      alert("A member with this phone number already exists");
+      return;
+    }
+
     const newMember = {
       id: Date.now(),
-      name: formData.get("name"),
-      phone: formData.get("phone"),
-      gender: formData.get("gender"),
-      fee: Number(formData.get("fee")),
-      photo: formData.get("photo")
-        ? URL.createObjectURL(formData.get("photo"))
-        : "",
+      name: name,
+      phone: phone,
+      gender: formData.get("gender") || "male",
+      fee: Number(fee),
+      photo:
+        photoFile && photoFile.size > 0 ? URL.createObjectURL(photoFile) : "",
+      address: address || "",
+      aadharCard: aadharFile && aadharFile.size > 0 ? aadharFile.name : "",
       paidMonths: [],
       status: "active",
     };
-    setMembers((prev) => [...prev, newMember]);
-    setIsAddOpen(false); // close popup after saving
+
+    setMembers((prev) => [newMember, ...prev]);
+    setIsAddOpen(false);
     e.currentTarget.reset();
+
+    alert(`Member ${name} has been successfully added!`);
   };
 
   return (
@@ -324,6 +363,7 @@ export default function Dashboard() {
                     <SelectItem value="female">Female</SelectItem>
                   </SelectContent>
                 </Select>
+                <Input name="address" placeholder="Address" required />
                 <Input
                   type="number"
                   name="fee"
@@ -331,6 +371,7 @@ export default function Dashboard() {
                   required
                 />
                 <Input type="file" name="photo" accept="image/*" />
+                <Input type="file" name="aadhar" accept="image/*" />
                 <Button type="submit" className="w-full">
                   Save
                 </Button>
