@@ -5,6 +5,7 @@ import { Moon, Sun, LogOut, Dumbbell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { redirect, usePathname } from "next/navigation";
+import { toast } from "sonner";
 
 export default function Navbar() {
   const [darkMode, setDarkMode] = useState(false);
@@ -12,6 +13,8 @@ export default function Navbar() {
   const path = usePathname();
   console.log(path);
   const toggleTheme = () => {
+    toast.success(`You Entered To ${!darkMode ? "Dark Mode" : "Light Mode"}`);
+
     setDarkMode(!darkMode);
     document.documentElement.classList.toggle("dark");
   };
@@ -39,7 +42,7 @@ export default function Navbar() {
           variant="ghost"
           size="icon"
           onClick={toggleTheme}
-          className="rounded-full bg-slate-100"
+          className="rounded-full bg-slate-100 dark:bg-slate-600"
         >
           {darkMode ? (
             <Sun className="h-5 w-5 text-yellow-400" />

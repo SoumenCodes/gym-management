@@ -36,6 +36,7 @@ import {
   Eye,
   ArrowUpDown,
 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const months = [
@@ -176,20 +177,20 @@ export default function Dashboard() {
 
     // Basic validation
     if (!name || !phone || !fee) {
-      alert("Please fill in all required fields (Name, Phone, Fee)");
+      toast.warning("Please fill in all required fields (Name, Phone, Fee)");
       return;
     }
 
     // Phone validation
     if (!/^\d{10}$/.test(phone)) {
-      alert("Please enter a valid 10-digit phone number");
+      toast.warning("Please enter a valid 10-digit phone number");
       return;
     }
 
     // Check for duplicate phone numbers
     const existingMember = members.find((m) => m.phone === phone);
     if (existingMember) {
-      alert("A member with this phone number already exists");
+      toast.warning("A member with this phone number already exists");
       return;
     }
 
@@ -211,7 +212,7 @@ export default function Dashboard() {
     setIsAddOpen(false);
     e.currentTarget.reset();
 
-    alert(`Member ${name} has been successfully added!`);
+    toast.success(`Member ${name} has been successfully added!`);
   };
 
   return (
