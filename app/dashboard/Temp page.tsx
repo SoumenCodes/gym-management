@@ -167,41 +167,55 @@ export default function Dashboard() {
   return (
     <div className="p-6 space-y-6">
       {/* Top Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-blue-50">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-500">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Total Members</CardTitle>
-            <Users className="h-5 w-5 text-blue-500" />
+            <CardTitle className="text-blue-900 dark:text-blue-100">
+              Total Members
+            </CardTitle>
+            <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-blue-700">{totalMembers}</p>
+            <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+              {totalMembers}
+            </p>
           </CardContent>
         </Card>
-        <Card className="bg-green-50">
+        <Card className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-500">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Active Members</CardTitle>
-            <UserCheck className="h-5 w-5 text-green-500" />
+            <CardTitle className="text-green-900 dark:text-green-100">
+              Active Members
+            </CardTitle>
+            <UserCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-green-700">{activeMembers}</p>
+            <p className="text-2xl font-bold text-green-700 dark:text-green-300">
+              {activeMembers}
+            </p>
           </CardContent>
         </Card>
-        <Card className="bg-red-50">
+        <Card className="bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-500">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Fees Pending ({month})</CardTitle>
-            <Wallet className="h-5 w-5 text-red-500" />
+            <CardTitle className="text-red-900 dark:text-red-100">
+              Fees Pending ({month})
+            </CardTitle>
+            <Wallet className="h-5 w-5 text-red-600 dark:text-red-400" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-red-700">{feesPending}</p>
+            <p className="text-2xl font-bold text-red-700 dark:text-red-300">
+              {feesPending}
+            </p>
           </CardContent>
         </Card>
-        <Card className="bg-purple-50">
+        <Card className="bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-500">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Fees Collected ({month})</CardTitle>
-            <Calendar className="h-5 w-5 text-purple-500" />
+            <CardTitle className="text-purple-900 dark:text-purple-100">
+              Fees Collected ({month})
+            </CardTitle>
+            <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-purple-700">
+            <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
               ₹{feesCollected}
             </p>
           </CardContent>
@@ -209,7 +223,7 @@ export default function Dashboard() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div className="flex flex-col md:flex-row gap-3 md:items-center">
         <Input
           placeholder="Search by name or phone..."
           value={search}
@@ -217,9 +231,9 @@ export default function Dashboard() {
           className="w-full md:w-1/3"
         />
 
-        <div className="flex gap-3">
+        <div className="flex flex-col md:flex-row gap-3 md:items-center md:flex-1 md:justify-end">
           <Select value={month} onValueChange={setMonth}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full md:w-[160px]">
               <SelectValue placeholder="Select Month" />
             </SelectTrigger>
             <SelectContent>
@@ -231,32 +245,36 @@ export default function Dashboard() {
             </SelectContent>
           </Select>
 
-          <Select value={sortKey} onValueChange={(val) => setSortKey(val)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="name">Name</SelectItem>
-              <SelectItem value="fee">Fee Amount</SelectItem>
-              <SelectItem value="gender">Gender</SelectItem>
-              <SelectItem value="status">Status</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex gap-3">
+            <Select value={sortKey} onValueChange={(val) => setSortKey(val)}>
+              <SelectTrigger className="w-full md:w-[160px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Name</SelectItem>
+                <SelectItem value="fee">Fee Amount</SelectItem>
+                <SelectItem value="gender">Gender</SelectItem>
+                <SelectItem value="status">Status</SelectItem>
+              </SelectContent>
+            </Select>
 
-          <Button
-            variant="outline"
-            onClick={() => setSortAsc(!sortAsc)}
-            className="flex items-center gap-2"
-          >
-            <ArrowUpDown className="h-4 w-4" />
-            {sortAsc ? "Asc" : "Desc"}
-          </Button>
+            <Button
+              variant="outline"
+              onClick={() => setSortAsc(!sortAsc)}
+              className="flex items-center justify-center gap-2 whitespace-nowrap"
+            >
+              <ArrowUpDown className="h-4 w-4" />
+              <span className="hidden md:inline">Sort </span>
+              {sortAsc ? "Asc" : "Desc"}
+            </Button>
+          </div>
 
           {/* Add Member Dialog */}
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <PlusCircle className="h-4 w-4" /> Add Member
+              <Button className="flex items-center justify-center gap-2 w-full md:w-auto">
+                <PlusCircle className="h-4 w-4" />
+                <span className="hidden md:inline">Add </span>Member
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -315,7 +333,7 @@ export default function Dashboard() {
                     <TableCell className="w-[80px]">
                       {m.photo ? (
                         <img
-                          src={m.photo}
+                          src={m.photo || "/placeholder.svg"}
                           alt={m.name}
                           className="h-10 w-10 rounded-full object-cover"
                         />
@@ -327,11 +345,11 @@ export default function Dashboard() {
                     <TableCell className="w-[150px]">{m.phone}</TableCell>
                     <TableCell className="w-[120px]">
                       {hasPaid ? (
-                        <Badge className="bg-green-100 text-green-700">
+                        <Badge className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700">
                           Paid
                         </Badge>
                       ) : (
-                        <Badge className="bg-red-100 text-red-700">
+                        <Badge className="bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700">
                           Pending
                         </Badge>
                       )}
