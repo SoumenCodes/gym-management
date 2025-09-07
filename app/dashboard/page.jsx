@@ -56,6 +56,7 @@ export default function Dashboard() {
 
   const [search, setSearch] = useState("");
   const [month, setMonth] = useState(currentMonth);
+  const [filter, setFilter] = useState("all"); // "all", "pending", "collected"
 
   const [sortAsc, setSortAsc] = useState(true);
   const [sortKey, setSortKey] = useState("name");
@@ -102,7 +103,6 @@ export default function Dashboard() {
   ]);
 
   const [viewMember, setViewMember] = useState(null);
-
   // Filter + Sort
   const filteredMembers = members
     .filter(
@@ -110,6 +110,11 @@ export default function Dashboard() {
         m.name.toLowerCase().includes(search.toLowerCase()) ||
         m.phone.includes(search)
     )
+    .filter((m) => {
+      if (filter === "pending") return !m.paidMonths.includes(month);
+      if (filter === "collected") return m.paidMonths.includes(month);
+      return true; // "all" shows everyone
+    })
     .sort((a, b) => {
       let valA, valB;
 
@@ -133,7 +138,6 @@ export default function Dashboard() {
       if (valA > valB) return sortAsc ? 1 : -1;
       return 0;
     });
-
   // Dashboard calculations
   const totalMembers = members.length;
   const activeMembers = totalMembers;
@@ -168,7 +172,12 @@ export default function Dashboard() {
     <div className="p-6 space-y-6">
       {/* Top Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-500">
+        <Card
+          className={`bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 cursor-pointer transition-all shadow-md ${
+            filter === "all" ? "ring-2 ring-blue-500" : ""
+          }`}
+          onClick={() => setFilter("all")}
+        >
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-blue-900 dark:text-blue-100">
               Total Members
@@ -181,7 +190,7 @@ export default function Dashboard() {
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-500">
+        <Card className="bg-green-50 shadow-md dark:bg-green-950 border-green-200 dark:border-green-800">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-green-900 dark:text-green-100">
               Active Members
@@ -194,7 +203,12 @@ export default function Dashboard() {
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-500">
+        <Card
+          className={`bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 cursor-pointer transition-all shadow-md ${
+            filter === "pending" ? "ring-2 ring-red-500" : ""
+          }`}
+          onClick={() => setFilter("pending")}
+        >
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-red-900 dark:text-red-100">
               Fees Pending ({month})
@@ -207,7 +221,12 @@ export default function Dashboard() {
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-500">
+        <Card
+          className={`bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800 cursor-pointer transition-all shadow-md ${
+            filter === "collected" ? "ring-2 ring-purple-500" : ""
+          }`}
+          onClick={() => setFilter("collected")}
+        >
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-purple-900 dark:text-purple-100">
               Fees Collected ({month})
@@ -312,7 +331,13 @@ export default function Dashboard() {
       {/* Members Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Members</CardTitle>
+          <CardTitle>
+            {filter === "pending"
+              ? `Members with Pending Fees (${month})`
+              : filter === "collected"
+              ? `Members with Collected Fees (${month})`
+              : "All Members"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
