@@ -39,7 +39,7 @@ export default function Navbar() {
           variant="ghost"
           size="icon"
           onClick={toggleTheme}
-          className="rounded-full"
+          className="rounded-full bg-slate-100"
         >
           {darkMode ? (
             <Sun className="h-5 w-5 text-yellow-400" />

@@ -56,7 +56,7 @@ export default function Dashboard() {
 
   const [search, setSearch] = useState("");
   const [month, setMonth] = useState(currentMonth);
-  const [filter, setFilter] = useState("all"); // "all", "pending", "collected"
+  const [filter, setFilter] = useState("active"); // "all", "pending", "collected",, "active"
 
   const [sortAsc, setSortAsc] = useState(true);
   const [sortKey, setSortKey] = useState("name");
@@ -72,6 +72,7 @@ export default function Dashboard() {
       gender: "male",
       photo: "https://randomuser.me/api/portraits/men/32.jpg",
       paidMonths: ["September"],
+      status: "active",
     },
     {
       id: 3,
@@ -81,6 +82,7 @@ export default function Dashboard() {
       gender: "female",
       photo: "https://randomuser.me/api/portraits/women/68.jpg",
       paidMonths: ["September", "October"],
+      status: "active",
     },
     {
       id: 4,
@@ -90,6 +92,7 @@ export default function Dashboard() {
       gender: "male",
       photo: "https://randomuser.me/api/portraits/men/75.jpg",
       paidMonths: [],
+      status: "active",
     },
     {
       id: 5,
@@ -99,6 +102,7 @@ export default function Dashboard() {
       gender: "male",
       photo: "https://randomuser.me/api/portraits/men/15.jpg",
       paidMonths: ["October"],
+      status: "active",
     },
   ]);
 
@@ -113,6 +117,7 @@ export default function Dashboard() {
     .filter((m) => {
       if (filter === "pending") return !m.paidMonths.includes(month);
       if (filter === "collected") return m.paidMonths.includes(month);
+      if (filter === "active") return m.status === "active";
       return true; // "all" shows everyone
     })
     .sort((a, b) => {
@@ -138,9 +143,10 @@ export default function Dashboard() {
       if (valA > valB) return sortAsc ? 1 : -1;
       return 0;
     });
+
   // Dashboard calculations
   const totalMembers = members.length;
-  const activeMembers = totalMembers;
+  const activeMembers = members.filter((m) => m.status === "active").length;
   const feesPending = members.filter(
     (m) => !m.paidMonths.includes(month)
   ).length;
@@ -162,6 +168,7 @@ export default function Dashboard() {
         ? URL.createObjectURL(formData.get("photo"))
         : "",
       paidMonths: [],
+      status: "active",
     };
     setMembers((prev) => [...prev, newMember]);
     setIsAddOpen(false); // close popup after saving
@@ -190,7 +197,12 @@ export default function Dashboard() {
             </p>
           </CardContent>
         </Card>
-        <Card className="bg-green-50 shadow-md dark:bg-green-950 border-green-200 dark:border-green-800">
+        <Card
+          className={`bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800 cursor-pointer transition-all hover:shadow-md ${
+            filter === "active" ? "ring-2 ring-green-500" : ""
+          }`}
+          onClick={() => setFilter("active")}
+        >
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-green-900 dark:text-green-100">
               Active Members
@@ -336,6 +348,8 @@ export default function Dashboard() {
               ? `Members with Pending Fees (${month})`
               : filter === "collected"
               ? `Members with Collected Fees (${month})`
+              : filter === "active"
+              ? "Active Members"
               : "All Members"}
           </CardTitle>
         </CardHeader>
@@ -421,47 +435,129 @@ export default function Dashboard() {
 
       {/* View/Edit Member Dialog */}
       <Dialog open={!!viewMember} onOpenChange={() => setViewMember(null)}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Member Profile</DialogTitle>
           </DialogHeader>
           {viewMember && (
             <div className="space-y-4">
-              <img
-                src={viewMember.photo || "https://via.placeholder.com/100"}
-                alt={viewMember.name}
-                className="h-24 w-24 rounded-full object-cover mx-auto"
-              />
-              <Input
-                defaultValue={viewMember.name}
-                onChange={(e) =>
-                  setViewMember({ ...viewMember, name: e.target.value })
-                }
-              />
-              <Input
-                defaultValue={viewMember.phone}
-                onChange={(e) =>
-                  setViewMember({ ...viewMember, phone: e.target.value })
-                }
-              />
-              <Input
-                type="number"
-                defaultValue={viewMember.fee}
-                onChange={(e) =>
-                  setViewMember({ ...viewMember, fee: Number(e.target.value) })
-                }
-              />
-              <Button
-                onClick={() => {
-                  setMembers((prev) =>
-                    prev.map((m) => (m.id === viewMember.id ? viewMember : m))
-                  );
-                  setViewMember(null);
-                }}
-                className="w-full"
-              >
-                Save Changes
-              </Button>
+              <div className="text-center">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Profile Photo
+                </label>
+                <img
+                  src={viewMember.photo || "https://via.placeholder.com/100"}
+                  alt={viewMember.name}
+                  className="h-24 w-24 rounded-full object-cover mx-auto mb-2"
+                />
+                <Input type="file" accept="image/*" className="text-sm" />
+              </div>
+
+              <div className="flex justify-start items-center w-full gap-4">
+                <label className="flex-1 min-w-fit block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Full Name
+                </label>
+                <Input
+                  defaultValue={viewMember.name}
+                  onChange={(e) =>
+                    setViewMember({ ...viewMember, name: e.target.value })
+                  }
+                  className=""
+                />
+              </div>
+
+              <div className="flex justify-start items-center w-full gap-4">
+                <label className="flex-1 min-w-fit block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Phone Number
+                </label>
+                <Input
+                  defaultValue={viewMember.phone}
+                  onChange={(e) =>
+                    setViewMember({ ...viewMember, phone: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="flex justify-start items-center w-full gap-4">
+                <label className="flex-1 min-w-fit block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Address
+                </label>
+                <Input
+                  defaultValue={viewMember.address || ""}
+                  placeholder="Enter full address"
+                  onChange={(e) =>
+                    setViewMember({ ...viewMember, address: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="flex justify-start items-center w-full gap-4">
+                <label className="flex-1 min-w-fit block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Fee Amount (₹)
+                </label>
+                <Input
+                  type="number"
+                  defaultValue={viewMember.fee}
+                  onChange={(e) =>
+                    setViewMember({
+                      ...viewMember,
+                      fee: Number(e.target.value),
+                    })
+                  }
+                />
+              </div>
+
+              <div className="flex justify-start items-center w-full gap-4">
+                <label className="flex-1 min-w-fit block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Aadhar Card
+                </label>
+                <Input
+                  type="file"
+                  accept="image/*,.pdf"
+                  className="text-sm"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setViewMember({ ...viewMember, aadharCard: file.name });
+                    }
+                  }}
+                />
+                {viewMember.aadharCard && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Current: {viewMember.aadharCard}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => {
+                    setMembers((prev) =>
+                      prev.map((m) => (m.id === viewMember.id ? viewMember : m))
+                    );
+                    setViewMember(null);
+                  }}
+                  className="flex-1 cursor-pointer"
+                >
+                  Save Changes
+                </Button>
+                <Button
+                  // variant="destructive"
+                  className="bg-red-400 hover:bg-red-500 cursor-pointer"
+                  onClick={() => {
+                    setMembers((prev) =>
+                      prev.map((m) =>
+                        m.id === viewMember.id
+                          ? { ...viewMember, status: "inactive" }
+                          : m
+                      )
+                    );
+                    setViewMember(null);
+                  }}
+                >
+                  Inactive User
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
